@@ -23,7 +23,7 @@ pipeline {
                         notifyBuild("STARTED")
                         sh 'terraform init'
                         sh 'terraform validate'
-                        sh 'terraform apply -auto-approve'
+                        sh 'terraform apply -auto-approve -no-color'
                     } catch (e) {
                         // If there was an exception thrown, the build failed
                         currentBuild.result = "FAILED"
