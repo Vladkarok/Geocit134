@@ -604,7 +604,6 @@
         </repository>
 </repositories>
 <!--
-
 <distributionManagement>
     <repository>
       <id>nexus</id>
