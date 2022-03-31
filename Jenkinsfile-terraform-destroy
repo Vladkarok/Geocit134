@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Git checkout') {
             steps {
-                git branch: 'main', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/terraform-geocit-aws.git'
+                git branch: 'terraform-aws', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/Geocit134.git'
             }
         }
         stage("Terraform destroy"){
