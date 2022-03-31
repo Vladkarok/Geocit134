@@ -86,6 +86,7 @@ pipeline {
             steps {
                 script {
                     try {
+                        notifyBuild("STARTED")
                         sh("mvn clean install")
                     } catch (e) {
                         currentBuild.result = "FAILED"
