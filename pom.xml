@@ -170,13 +170,13 @@
         </dependency>
         <!--Hibernate-->
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate.validator.version}</version>
         </dependency>
@@ -187,16 +187,10 @@
             <version>${postgresql.connector.version}</version>
         </dependency>
 
-	<dependency>
-    	    <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.2.5</version>
-        </dependency>
-
         <!--Servlet API-->
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
             <version>${servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -498,6 +492,7 @@
 	        <plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
 		        <configuration>
 			        <failOnMissingWebXml>false</failOnMissingWebXml>
 		        </configuration>
@@ -517,14 +512,6 @@
 			                <version>${mapstruct.version}</version>
 		                </path>
 	                </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
 
@@ -584,7 +571,7 @@
         <repository>
             <id>org.springframework.maven.milestone</id>
             <name>Spring Maven Milestone Repository</name>
-            <url>http://repo.spring.io/milestone</url>
+            <url>https://repo.spring.io/milestone</url>
         </repository>
         <repository>
             <id>public</id>
@@ -613,9 +600,10 @@
         <repository>
             <id>spring-milestone</id>
             <name>Spring Maven MILESTONE Repository</name>
-            <url>http://repo.spring.io/libs-milestone</url>
+            <url>https://repo.spring.io/libs-milestone</url>
         </repository>
 </repositories>
+<!--
 <distributionManagement>
     <repository>
       <id>nexus</id>
@@ -627,5 +615,6 @@
       <name>Snapshot</name>
       <url>http://35.188.29.52:8081/repository/maven-snapshots</url>
     </snapshotRepository>
-  </distributionManagement>
+</distributionManagement>
+-->
 </project>
