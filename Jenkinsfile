@@ -1,44 +1,137 @@
 pipeline {
-    agent { label '1' }
+
+    agent {
+        label 'nexus'
+    }
 
     environment {
-        AWS_ACCESS_KEY_ID        = credentials('TERRAFORM_AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY    = credentials('TERRAFORM_AWS_SECRET_ACCESS_KEY')
+        db_user        = credentials('db_user')
+        db_password    = credentials('db_password')
+        db_name        = credentials('db_name')
+        email_login    = credentials('email_login')
+        email_password = credentials('email_password')
+        nexus_oss_url  = "35.247.90.117:8081"
+    }
+
+    triggers {
+        githubPush()
     }
 
     tools {
-        terraform 'Terraform'
+        maven "3.6.3"
     }
 
     stages {
-        stage('Git checkout') {
+    
+        stage ('Clean WS') {
             steps {
-                git branch: 'main', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/terraform-geocit-aws.git'
+                // clean current workspace directory
+                cleanWs()
+
             }
         }
-        stage("Terraform apply"){
+
+        stage ('Clone Geo Citizen project') {
+            steps {             
+                git branch: 'main', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/Geocit134.git'
+
+            }
+        }        
+
+        stage('Project fixing / configuration') {
+            steps {
+                // fix project
+                script{
+                    sh '''#!/bin/bash
+                    #################################################
+                    ### Set the environment variables
+                    #################################################
+                    
+                    s_db_user=${db_user}
+                    s_db_password=${db_password}
+                    s_db_name=${db_name}
+                    s_email_login=${email_login}
+                    s_email_password=${email_password}
+                    s_serverip="geocitizen.vladkarok.ml"
+                    s_databaseip="dbgeo.vladkarok.ml"
+
+                    ##################Adjusting_application.properties###############################
+                    sed -i -E \\
+                                "s/(http:\\/\\/localhost)/http:\\/\\/${s_serverip}/g; \\
+
+                                s/(postgresql:\\/\\/localhost)/postgresql:\\/\\/${s_databaseip}/g;
+                                s/(35.204.28.238)/${s_databaseip}/g;
+                                s/(db.username=postgres)/db.username=${s_db_user}/g;
+                                s/(db.password=postgres)/db.password=${s_db_password}/g;
+                                s/(username=postgres)/username=${s_db_user}/g;
+                                s/(password=postgres)/password=${s_db_password}/g;
+                                s/(ss_demo_1)$/${s_db_name}/g;
+
+                                s/(email.username=ssgeocitizen@gmail.com)/email.username=${s_email_login}/g;
+                                s/(email.password=softserve)/email.password=${s_email_password}/g;" src/main/resources/application.properties
+                    
+                    ##################Repair index.html favicon###############################
+                    sed -i "s/\\/src\\/assets/\\.\\/static/g" src/main/webapp/index.html
+
+                    ##################Repair js bundles###############################
+                    find ./src/main/webapp/static/js/ -type f -exec sed -i "s/localhost:8080/${s_serverip}:8080/g" {} +
+
+                    '''
+                }
+                
+            }
+        }
+
+        stage('Build Geo Citizen with Maven') {
             steps {
                 script {
                     try {
-                        notifyBuild("STARTED")
-                        sh 'terraform init'
-                        sh 'terraform validate'
-                        sh 'terraform apply -auto-approve'
+                        sh("mvn clean install")
                     } catch (e) {
-                        // If there was an exception thrown, the build failed
                         currentBuild.result = "FAILED"
                         jiraComment body: "Job \"${env.JOB_NAME}\" FAILED! ${env.BUILD_URL}", issueKey: 'CDA-21'
                         throw e
                     } finally {
-                        // Success or failure, always send notifications
                         notifyBuild(currentBuild.result)
                     }
                 }
             }
+        }        
+
+        stage('Uploading to Nexus') {
+            steps{
+                script{
+                    try {
+                        def mavenPom = readMavenPom file: 'pom.xml'
+                        def nexusRepoName = mavenPom.version.endsWith('-SNAPSHOT') ? 'maven-snapshots' : 'maven-releases'
+                        nexusArtifactUploader artifacts: [
+                            [
+                                artifactId: 'geo-citizen', 
+                                classifier: '', 
+                                file: "target/citizen.war", 
+                                type: 'war'
+                            ]
+                        ], 
+                        credentialsId: 'geo-nexus-user', 
+                        groupId: 'com.softserveinc', 
+                        nexusUrl: "${nexus_oss_url}", 
+                        nexusVersion: 'nexus3', 
+                        protocol: 'http', 
+                        repository: nexusRepoName, 
+                        version: "${mavenPom.version}"
+                    } catch (e) {
+                        currentBuild.result = "FAILED"
+                        jiraComment body: "Job \"${env.JOB_NAME}\" FAILED! ${env.BUILD_URL}", issueKey: 'CDA-21'
+                        throw e
+                    } finally {
+                        notifyBuild(currentBuild.result)
+                    }
+                }
+
+            }
         }
     }
 }
-
 def notifyBuild(String buildStatus = 'STARTED') {
     // build status of null means successful
     buildStatus =  buildStatus ?: 'SUCCESSFUL'
@@ -64,3 +157,5 @@ def notifyBuild(String buildStatus = 'STARTED') {
     // Send notifications
     slackSend (color: colorCode, message: summary)
 }
+
+            
