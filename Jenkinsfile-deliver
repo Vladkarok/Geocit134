@@ -1,0 +1,48 @@
+pipeline {
+    
+    agent {
+        label 'nexus'
+    }
+
+    stages {
+    
+        stage ('Clean WS') {
+            steps {
+                // clean current workspace directory
+                cleanWs()
+
+            }
+        }
+
+        stage('Get Geo Ciizen .war file') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'geo-nexus-user', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
+
+                    sh '''
+                    curl -L  \
+                    --output "citizen.war" \
+                    --user "$nexus_user_login:$nexus_user_pass" \
+                    "http://35.247.90.117:8081/service/rest/v1/search/assets/download?sort=version&direction=desc&repository=maven-snapshots&maven.groupId=com.softserveinc&maven.artifactId=geo-citizen&maven.baseVersion=1.0.5-SNAPSHOT&maven.extension=war"
+                    '''
+                }
+                
+            }
+        }       
+        
+        stage('Push Geo Citizen .war file') {
+            steps {
+                sshagent(['aws-ec2-ubuntu-ssh']) {
+                    
+                    withEnv(["server=geocitizen.vladkarok.ml", "user=ubuntu"]) {
+                    
+                        // provide .war to server
+                        sh ("scp -o StrictHostKeyChecking=no citizen.war ${user}@${server}:/home/ubuntu/")
+                    
+                        // deploy .war file on Tomcat
+                        sh ("ssh -o StrictHostKeyChecking=no ${user}@${server} sudo mv /home/ubuntu/citizen.war /opt/tomcat/webapps")
+                    }
+                }
+            }
+        }
+    }
+}
