@@ -1,7 +1,7 @@
 data "aws_availability_zones" "available" {}
 
 resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr_block
+  cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = true
   tags = {
     Name = "Geocitizen-vpc"
@@ -16,13 +16,23 @@ resource "aws_internet_gateway" "main" {
 }
 
 
-resource "aws_subnet" "public_subnets" {
+resource "aws_subnet" "public_subnets1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidr
   availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
   tags = {
-    Name = "Geocitizen public subnet"
+    Name = "Geocitizen public subnet1"
+  }
+}
+
+resource "aws_subnet" "public_subnets2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidr2
+  availability_zone       = data.aws_availability_zones.available.names[1]
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "Geocitizen public subnet2"
   }
 }
 
@@ -40,5 +50,5 @@ resource "aws_route_table" "public_subnets" {
 
 resource "aws_route_table_association" "public_routes" {
   route_table_id = aws_route_table.public_subnets.id
-  subnet_id      = aws_subnet.public_subnets.id
+  gateway_id     = aws_internet_gateway.main.id
 }

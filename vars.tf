@@ -14,10 +14,14 @@ variable "public_subnet_cidr" {
   default = "10.255.1.0/24"
 }
 
+variable "public_subnet_cidr2" {
+  default = "10.255.2.0/24"
+}
+
 variable "allow_ports_web" {
   type        = list(any)
   description = "Ports to open for web application"
-  default     = ["22", "8080"]
+  default     = ["22", "8080", "80"]
 }
 
 variable "all_cidr_block" {
