@@ -57,7 +57,7 @@ pipeline {
 
                     ##################Adjusting_application.properties###############################
                     sed -i -E \\
-                                "s/(http:\\/\\/localhost:8080)/http:\\/\\/${s_serverip}:80/g; \\
+                                "s/(http:\\/\\/localhost:8080)/https:\\/\\/${s_serverip}:80/g; \\
 
                                 s/(postgresql:\\/\\/localhost)/postgresql:\\/\\/${s_databaseip}/g;
                                 s/(35.204.28.238)/${s_databaseip}/g;
@@ -75,6 +75,7 @@ pipeline {
 
                     ##################Repair js bundles###############################
                     find ./src/main/webapp/static/js/ -type f -exec sed -i "s/localhost:8080/${s_serverip}:80/g" {} +
+                    find ./src/main/webapp/static/js/ -type f -exec sed -i "s/http:\\/\\/${s_serverip}:80/https:\\/\\/${s_serverip}:80/g" {} +
 
                     '''
                 }
