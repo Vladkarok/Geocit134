@@ -72,7 +72,7 @@ variable "domain_db" {
 variable "desired_capacity" {
   type        = number
   description = "Desired capacity"
-  default     = 1
+  default     = 2
 }
 
 variable "min_size" {
