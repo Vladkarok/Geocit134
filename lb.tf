@@ -97,7 +97,7 @@ resource "aws_autoscaling_group" "geo_web" {
   ]
   lifecycle {
     ignore_changes = [
-      load_balancers,
+      desired_capacity,
       target_group_arns
     ]
   }
