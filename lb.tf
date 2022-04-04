@@ -92,6 +92,15 @@ resource "aws_autoscaling_group" "geo_web" {
   termination_policies      = ["OldestInstance"]
   launch_configuration      = aws_launch_configuration.geo_web.name
   vpc_zone_identifier       = [aws_subnet.public_subnets[0].id, aws_subnet.public_subnets[1].id]
+  target_group_arns = [
+    aws_lb_target_group.geo_web.arn
+  ]
+  lifecycle {
+    ignore_changes = [
+      load_balancers,
+      target_group_arns
+    ]
+  }
   tag {
     key                 = "Name"
     value               = "Ubuntu-Web"
@@ -151,7 +160,7 @@ resource "aws_lb_listener" "front_end" {
 }
 
 ## Attach
-resource "aws_autoscaling_attachment" "asg_attachment_geo_web" {
-  autoscaling_group_name = aws_autoscaling_group.geo_web.id
-  lb_target_group_arn    = aws_lb_target_group.geo_web.arn
-}
+# resource "aws_autoscaling_attachment" "asg_attachment_geo_web" {
+#   autoscaling_group_name = aws_autoscaling_group.geo_web.id
+#   lb_target_group_arn    = aws_lb_target_group.geo_web.arn
+# }
