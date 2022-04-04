@@ -63,6 +63,14 @@ resource "aws_security_group" "allow_db" {
     cidr_blocks = [var.all_cidr_block]
   }
 
+  ingress {
+    description = "allow icmp echo"
+    from_port   = 8
+    to_port     = 0
+    protocol    = "icmp"
+    cidr_blocks = [var.all_cidr_block]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0

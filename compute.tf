@@ -20,11 +20,12 @@ data "aws_ami" "amazon_linux_latest" {
 
 # Create server with OS Ubuntu 20.04 for WEB
 resource "aws_instance" "Ubuntu_Web" {
+  count                  = 0
   ami                    = data.aws_ami.ubuntu_latest.id
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.allow_web.id]
-  subnet_id              = aws_subnet.public_subnets2.id
-  availability_zone      = data.aws_availability_zones.available.names[0]
+  subnet_id              = aws_subnet.public_subnets[count.index].id
+  availability_zone      = data.aws_availability_zones.available.names[count.index]
   key_name               = var.ssh_key_name
   user_data              = <<EOF
 #!/bin/bash
@@ -34,7 +35,8 @@ sudo reboot now
 EOF
 
   tags = {
-    Name = "Ubuntu-Web"
+    Name   = "Ubuntu-Web"
+    Number = "${count.index + 1}"
   }
 
   lifecycle {
@@ -50,8 +52,8 @@ resource "aws_instance" "Amazon_Linux_DB" {
   ami                    = data.aws_ami.amazon_linux_latest.id
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.allow_db.id]
-  subnet_id              = aws_subnet.public_subnets1.id
-  availability_zone      = data.aws_availability_zones.available.names[0]
+  subnet_id              = aws_subnet.public_subnets[1].id
+  availability_zone      = data.aws_availability_zones.available.names[1]
   key_name               = var.ssh_key_name
   user_data              = <<EOF
 #!/bin/bash

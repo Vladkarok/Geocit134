@@ -10,18 +10,17 @@ variable "vpc_cidr_block" {
   default     = "10.255.0.0/16"
 }
 
-variable "public_subnet_cidr" {
-  default = "10.255.1.0/24"
-}
-
-variable "public_subnet_cidr2" {
-  default = "10.255.2.0/24"
+variable "public_subnet_cidrs" {
+  default = [
+    "10.255.1.0/24",
+    "10.255.2.0/24",
+  ]
 }
 
 variable "allow_ports_web" {
   type        = list(any)
   description = "Ports to open for web application"
-  default     = ["22", "8080", "80"]
+  default     = ["22", "8080", "80", "443"]
 }
 
 variable "all_cidr_block" {
@@ -65,4 +64,24 @@ variable "domain_db" {
   type        = string
   description = "Hosted domain db private ip"
   default     = "dbgeo.vladkarok.ml"
+}
+
+###################################################################
+## LB
+###################################################################
+variable "desired_capacity" {
+  type        = number
+  description = "Desired capacity"
+  default     = 1
+}
+
+variable "min_size" {
+  type        = number
+  description = "Minimum capacity"
+  default     = 1
+}
+variable "max_size" {
+  type        = number
+  description = "Maximum capacity"
+  default     = 5
 }

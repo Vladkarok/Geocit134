@@ -1,9 +1,9 @@
 output "Webserver_public_IP" {
-  value = aws_instance.Ubuntu_Web.public_ip
+  value = aws_instance.Ubuntu_Web.*.public_ip
 }
 
 output "Webserver_private_IP" {
-  value = aws_instance.Ubuntu_Web.private_ip
+  value = aws_instance.Ubuntu_Web.*.private_ip
 }
 
 output "DB_public_IP" {

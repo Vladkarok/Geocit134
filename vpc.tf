@@ -15,24 +15,14 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
-
-resource "aws_subnet" "public_subnets1" {
+resource "aws_subnet" "public_subnets" {
+  count                   = length(var.public_subnet_cidrs)
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnet_cidr
-  availability_zone       = data.aws_availability_zones.available.names[0]
+  cidr_block              = element(var.public_subnet_cidrs, count.index)
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
   tags = {
-    Name = "Geocitizen public subnet1"
-  }
-}
-
-resource "aws_subnet" "public_subnets2" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnet_cidr2
-  availability_zone       = data.aws_availability_zones.available.names[1]
-  map_public_ip_on_launch = true
-  tags = {
-    Name = "Geocitizen public subnet2"
+    Name = "Geocitizen public subnet-${count.index + 1}"
   }
 }
 
@@ -48,7 +38,9 @@ resource "aws_route_table" "public_subnets" {
   }
 }
 
+
 resource "aws_route_table_association" "public_routes" {
+  count          = length(aws_subnet.public_subnets[*].id)
   route_table_id = aws_route_table.public_subnets.id
-  gateway_id     = aws_internet_gateway.main.id
+  subnet_id      = element(aws_subnet.public_subnets[*].id, count.index)
 }
