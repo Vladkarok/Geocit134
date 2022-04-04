@@ -67,7 +67,7 @@ sudo systemctl enable --now tomcat
 ## Downloading .war file
 
 curl -L \
--u ${nexus_user_login}:${nexus_user_pass} \
+-u ${var.nexus_user_login}:${var.nexus_user_pass} \
 --output citizen.war  \
 "http://35.247.90.117:8081/service/rest/v1/search/assets/download?sort=version&direction=desc&repository=maven-snapshots&maven.groupId=com.softserveinc&maven.artifactId=geo-citizen&maven.baseVersion=1.0.5-SNAPSHOT&maven.extension=war" > /dev/null 2>&1 || true
 

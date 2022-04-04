@@ -85,3 +85,13 @@ variable "max_size" {
   description = "Maximum capacity"
   default     = 5
 }
+
+variable "nexus_user_login" {
+  type      = string
+  sensitive = true
+}
+
+variable "nexus_user_pass" {
+  type      = string
+  sensitive = true
+}
