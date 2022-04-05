@@ -1,6 +1,6 @@
 ## Launch configuration with user data script to install and configure PostgreSQL
 resource "aws_launch_configuration" "geo_web" {
-  name_prefix                 = "geo-web"
+  name_prefix                 = "geo-web-SNAPSHOT-1.0.5"
   image_id                    = data.aws_ami.ubuntu_latest.id
   instance_type               = var.instance_type
   security_groups             = [aws_security_group.allow_web.id]
@@ -129,6 +129,16 @@ resource "aws_lb_target_group" "geo_web" {
   protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = aws_vpc.main.id
+  health_check {
+    path                = "/citizen/"
+    interval            = 60
+    port                = 8080
+    protocol            = "HTTP"
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    matcher             = "200-299"
+  }
 }
 
 ## load balancer
