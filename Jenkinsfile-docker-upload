@@ -7,7 +7,7 @@ pipeline {
     environment {
         imageName = "geocit"
         registryCredentials = "geo-docker"
-        registry = "35.247.90.117::8082/"
+        registry = "35.247.90.117:8082"
         dockerImage = ''
     }
 
@@ -51,15 +51,22 @@ pipeline {
             }
         }
 
-        stage('Uploading to Nexus') {
-            steps{  
+        stage('Deploy Image') {
+            steps{
                 script {
                     docker.withRegistry( 'http://'+registry, registryCredentials ) {
-                    dockerImage.push('latest')
+                        dockerImage.push("${env.BUILD_NUMBER}")
                     }
                 }
             }
         }
 
+        stage('Remove Unused docker image') {
+            steps{
+                sh "docker rmi -f $registry/$imageName:${env.BUILD_NUMBER}"
+                sh "docker rmi -f $imageName:latest"
+
+            }
+        }
     }
 }
