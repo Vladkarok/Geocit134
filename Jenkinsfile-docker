@@ -1,0 +1,65 @@
+pipeline {
+    
+    agent {
+        label 'docker'
+    }
+
+    environment {
+        imageName = "geocit"
+        registryCredentials = "geo-docker"
+        registry = "35.247.90.117::8082/"
+        dockerImage = ''
+    }
+
+    stages {
+    
+        stage ('Clean WS') {
+            steps {
+                // clean current workspace directory
+                cleanWs()
+
+            }
+        }
+
+        stage ('Clone Geo Citizen project') {
+            steps {             
+                git branch: 'docker', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/Geocit134.git'
+
+            }
+        }
+
+        stage('Get latest Geo Ciizen .war file') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'geo-nexus-user', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
+
+                    sh '''
+                    curl -L  \
+                    --output "citizen.war" \
+                    --user "$nexus_user_login:$nexus_user_pass" \
+                    "http://35.247.90.117:8081/service/rest/v1/search/assets/download?sort=version&direction=desc&repository=maven-snapshots&maven.groupId=com.softserveinc&maven.artifactId=geo-citizen&maven.baseVersion=1.0.5-SNAPSHOT&maven.extension=war"
+                    '''
+                }
+                
+            }
+        }       
+        
+        stage('Building image') {
+            steps{
+                script {
+                    dockerImage = docker.build imageName
+                }
+            }
+        }
+
+        stage('Uploading to Nexus') {
+            steps{  
+                script {
+                    docker.withRegistry( 'http://'+registry, registryCredentials ) {
+                    dockerImage.push('latest')
+                    }
+                }
+            }
+        }
+
+    }
+}
