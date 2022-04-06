@@ -20,7 +20,7 @@ resource "aws_launch_configuration" "geo_web" {
 ## Define autoscaling group
 resource "aws_autoscaling_group" "geo_web" {
   #  availability_zones        = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1]]
-  name                      = "geo-web"
+  name                      = "ASG-${aws_launch_configuration.geo_web.name}"
   desired_capacity          = var.desired_capacity
   max_size                  = var.max_size
   min_size                  = var.min_size
@@ -30,10 +30,9 @@ resource "aws_autoscaling_group" "geo_web" {
   termination_policies      = ["OldestInstance"]
   launch_configuration      = aws_launch_configuration.geo_web.name
   vpc_zone_identifier       = [aws_subnet.public_subnets[0].id, aws_subnet.public_subnets[1].id]
-  target_group_arns = [
-    aws_lb_target_group.geo_web.arn
-  ]
+  target_group_arns         = [aws_lb_target_group.geo_web.arn]
   lifecycle {
+    create_before_destroy = true
     ignore_changes = [
       desired_capacity,
       target_group_arns
@@ -107,8 +106,3 @@ resource "aws_lb_listener" "front_end" {
   }
 }
 
-## Attach
-# resource "aws_autoscaling_attachment" "asg_attachment_geo_web" {
-#   autoscaling_group_name = aws_autoscaling_group.geo_web.id
-#   lb_target_group_arn    = aws_lb_target_group.geo_web.arn
-# }
