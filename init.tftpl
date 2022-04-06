@@ -1,0 +1,65 @@
+#!/bin/bash
+
+## Update the system
+sudo apt-get update > /dev/null 2>&1
+
+## Install Java 11
+sudo apt-get install openjdk-11-jdk -y > /dev/null 2>&1
+
+## Add user Tomcat
+sudo useradd -m -U -d /opt/tomcat -s /bin/false tomcat > /dev/null 2>&1 || true
+
+## Download Tomcat
+t_version="9.0.62"
+t_link="https://www-eu.apache.org/dist/tomcat/tomcat-9/v$t_version/bin/apache-tomcat-$t_version.tar.gz"
+wget $t_link -P /tmp > /dev/null 2>&1
+
+## Extract Tomcat
+sudo tar -xf /tmp/apache-tomcat-$t_version.tar.gz -C /opt/tomcat/ > /dev/null 2>&1
+sudo rm /tmp/apache-tomcat-$t_version.tar.gz
+
+## Create symbolic link
+sudo ln -s /opt/tomcat/apache-tomcat-$t_version /opt/tomcat/latest > /dev/null 2>&1 || true
+sudo chown -R tomcat: /opt/tomcat
+
+sudo sh -c 'chmod +x /opt/tomcat/latest/bin/*.sh'
+
+## Create systemd service
+sudo sh -c 'cat > /etc/systemd/system/tomcat.service' << SOF
+[Unit]
+Description=Apache Tomcat Web Application Container
+After=network.target
+
+[Service]
+Type=forking
+
+User=tomcat
+Group=tomcat
+
+Environment="JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64"
+Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom -Djava.awt.headless=true"
+
+Environment="CATALINA_BASE=/opt/tomcat/latest"
+Environment="CATALINA_HOME=/opt/tomcat/latest"
+Environment="CATALINA_PID=/opt/tomcat/latest/temp/tomcat.pid"
+Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+
+ExecStart=/opt/tomcat/latest/bin/startup.sh
+ExecStop=/opt/tomcat/latest/bin/shutdown.sh
+
+[Install]
+WantedBy=multi-user.target
+SOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now tomcat
+
+## Downloading .war file
+
+curl -L \
+-u ${nexus_user}:${nexus_password} \
+--output citizen.war  \
+"http://35.247.90.117:8081/service/rest/v1/search/assets/download?sort=version&direction=desc&repository=maven-snapshots&maven.groupId=com.softserveinc&maven.artifactId=geo-citizen&maven.baseVersion=1.0.5-SNAPSHOT&maven.extension=war" > /dev/null 2>&1 || true
+
+## Move .war to tomcat
+sudo mv citizen.war /opt/tomcat/latest/webapps/citizen.war
