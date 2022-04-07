@@ -10,7 +10,7 @@ pipeline {
         db_name        = credentials('db_name')
         email_login    = credentials('email_login')
         email_password = credentials('email_password')
-        nexus_oss_url  = "35.247.90.117:8081"
+        nexus_oss_url  = "nexus.vladkarok.ml"
     }
 
     triggers {
@@ -112,11 +112,11 @@ pipeline {
                                 type: 'war'
                             ]
                         ], 
-                        credentialsId: 'geo-nexus-user', 
+                        credentialsId: 'geo-nexus-maven', 
                         groupId: 'com.softserveinc', 
                         nexusUrl: "${nexus_oss_url}", 
                         nexusVersion: 'nexus3', 
-                        protocol: 'http', 
+                        protocol: 'https', 
                         repository: nexusRepoName, 
                         version: "${mavenPom.version}"
                     } catch (e) {
