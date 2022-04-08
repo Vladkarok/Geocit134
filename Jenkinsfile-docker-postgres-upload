@@ -43,7 +43,7 @@ pipeline {
                     s_db_user=${db_user}
                     s_db_password=${db_password}
                     s_db_name=${db_name}
-                    pg_version=$(postgres_core_image)
+                    pg_version=${postgres_core_image}
                     ##################Adjusting Dockerfile###############################
                     sed -i -E \\
                                 "s/(VERSION)/${pg_version}/g; \\
