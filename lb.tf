@@ -1,6 +1,6 @@
 ## Launch configuration with user data script to install and configure PostgreSQL
-resource "aws_launch_configuration" "geo_web" {
-  name_prefix                 = "geo-web-SNAPSHOT-1.0.5-"
+resource "aws_launch_configuration" "geo_web_docker" {
+  name_prefix                 = "geo-web-SNAPSHOT-1.0.5-docker-"
   image_id                    = data.aws_ami.ubuntu_latest.id
   instance_type               = var.instance_type
   security_groups             = [aws_security_group.allow_web.id]
@@ -8,19 +8,22 @@ resource "aws_launch_configuration" "geo_web" {
   enable_monitoring           = false
   associate_public_ip_address = true
   user_data = templatefile("./init.tftpl", {
-    nexus_user     = "${var.nexus_user_login}"
-    nexus_password = "${var.nexus_user_pass}"
+    docker_username = "${var.nexus_docker_username}"
+    docker_password = "${var.nexus_docker_password}"
     }
   )
   lifecycle {
     create_before_destroy = true
   }
+  depends_on = [
+    aws_instance.Amazon_Linux_DB
+  ]
 }
 
 ## Define autoscaling group
-resource "aws_autoscaling_group" "geo_web" {
+resource "aws_autoscaling_group" "geo_web_docker" {
   #  availability_zones        = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1]]
-  name                      = "ASG-${aws_launch_configuration.geo_web.name}"
+  name                      = "ASG-${aws_launch_configuration.geo_web_docker.name}"
   desired_capacity          = var.desired_capacity
   max_size                  = var.max_size
   min_size                  = var.min_size
@@ -28,9 +31,9 @@ resource "aws_autoscaling_group" "geo_web" {
   health_check_type         = "ELB"
   force_delete              = true
   termination_policies      = ["OldestInstance"]
-  launch_configuration      = aws_launch_configuration.geo_web.name
+  launch_configuration      = aws_launch_configuration.geo_web_docker.name
   vpc_zone_identifier       = [aws_subnet.public_subnets[0].id, aws_subnet.public_subnets[1].id]
-  target_group_arns         = [aws_lb_target_group.geo_web.arn]
+  target_group_arns         = [aws_lb_target_group.geo_web_docker.arn]
   lifecycle {
     create_before_destroy = true
     ignore_changes = [
@@ -40,16 +43,16 @@ resource "aws_autoscaling_group" "geo_web" {
   }
   tag {
     key                 = "Name"
-    value               = "Ubuntu-Web"
+    value               = "Ubuntu-Web-docker"
     propagate_at_launch = true
   }
 }
 
 ## Define autoscaling configuration policy
-resource "aws_autoscaling_policy" "geo_web" {
-  name                   = "geo-web"
+resource "aws_autoscaling_policy" "geo_web_docker" {
+  name                   = "geo-web-docker"
   adjustment_type        = "ChangeInCapacity"
-  autoscaling_group_name = aws_autoscaling_group.geo_web.name
+  autoscaling_group_name = aws_autoscaling_group.geo_web_docker.name
   policy_type            = "TargetTrackingScaling"
   target_tracking_configuration {
     predefined_metric_specification {
@@ -60,8 +63,8 @@ resource "aws_autoscaling_policy" "geo_web" {
 }
 
 ## Instance Target Group
-resource "aws_lb_target_group" "geo_web" {
-  name        = "geo-web"
+resource "aws_lb_target_group" "geo_web_docker" {
+  name        = "geo-web-docker"
   port        = 8080
   protocol    = "HTTP"
   target_type = "instance"
@@ -79,8 +82,8 @@ resource "aws_lb_target_group" "geo_web" {
 }
 
 ## load balancer
-resource "aws_lb" "geo_web" {
-  name               = "geo-web"
+resource "aws_lb" "geo_web_docker" {
+  name               = "geo-web-docker"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.allow_web.id]
@@ -96,13 +99,13 @@ resource "aws_lb" "geo_web" {
 
 ## Listener
 resource "aws_lb_listener" "front_end" {
-  load_balancer_arn = aws_lb.geo_web.arn
+  load_balancer_arn = aws_lb.geo_web_docker.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.geo_web.arn
+    target_group_arn = aws_lb_target_group.geo_web_docker.arn
   }
 }
 

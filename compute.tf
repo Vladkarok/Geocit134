@@ -55,12 +55,11 @@ resource "aws_instance" "Amazon_Linux_DB" {
   subnet_id              = aws_subnet.public_subnets[1].id
   availability_zone      = data.aws_availability_zones.available.names[1]
   key_name               = var.ssh_key_name
-  user_data              = <<EOF
-#!/bin/bash
-sudo amazon-linux-extras install epel -y
-sudo yum update -y
-sudo reboot now
-EOF
+  user_data = templatefile("./init_db.tftpl", {
+    docker_username = "${var.nexus_docker_username}"
+    docker_password = "${var.nexus_docker_password}"
+    }
+  )
   tags = {
     Name = "Amazon Linux 2 - DB"
   }

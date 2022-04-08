@@ -86,12 +86,12 @@ variable "max_size" {
   default     = 5
 }
 
-variable "nexus_user_login" {
+variable "nexus_docker_username" {
   type      = string
   sensitive = true
 }
 
-variable "nexus_user_pass" {
+variable "nexus_docker_password" {
   type      = string
   sensitive = true
 }

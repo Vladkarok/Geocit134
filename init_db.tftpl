@@ -1,12 +1,12 @@
 #!/bin/bash
 set -ex
 ## Update the system
-sudo apt-get update
+sudo yum update -y
 
 ## Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -a -G docker ubuntu
+sudo amazon-linux-extras install docker -y
+sudo service docker start
+sudo usermod -a -G docker ec2-user
 
 ## Install docker-compose
 sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -16,11 +16,13 @@ sudo chmod +x /usr/local/bin/docker-compose
 sudo sh -c 'cat > docker-compose.yml' << SOF
 version: "3.9"
 services:
-  geocit_web:
-    image: nexus.vladkarok.ml:5000/geocit:latest
+  geocit_db:
+    image: nexus.vladkarok.ml:5000/ss_postgres:latest
     restart: always
     ports:
-      - "8080:8080"
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
 SOF
 ## Create password file for docker login
 sh -c 'cat > password.txt' << SOF
@@ -28,10 +30,10 @@ ${docker_password}
 SOF
 
 ## Perform docker login
-cat password.txt |docker login --username ${docker_username} --password-stdin nexus.vladkarok.ml:5000
+cat password.txt | docker login --username ${docker_username} --password-stdin nexus.vladkarok.ml:5000
 
 ## Build and run image using docker-compose
 
 docker-compose up -d
-
+## Remove password file for docker login
 rm password.txt

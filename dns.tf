@@ -7,8 +7,8 @@ resource "aws_route53_record" "geo" {
   name    = var.domain_web
   type    = "A"
   alias {
-    name                   = aws_lb.geo_web.dns_name
-    zone_id                = aws_lb.geo_web.zone_id
+    name                   = aws_lb.geo_web_docker.dns_name
+    zone_id                = aws_lb.geo_web_docker.zone_id
     evaluate_target_health = true
   }
 }
