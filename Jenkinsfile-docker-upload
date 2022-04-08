@@ -7,7 +7,7 @@ pipeline {
     environment {
         imageName = "geocit"
         registryCredentials = "geo-docker"
-        registry = "35.247.90.117:8082"
+        registry = "nexus.vladkarok.ml:5000"
         dockerImage = ''
     }
 
@@ -30,13 +30,13 @@ pipeline {
 
         stage('Get latest Geo Ciizen .war file') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'geo-nexus-user', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
+                withCredentials([usernamePassword(credentialsId: 'geo-nexus-maven', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
 
                     sh '''
                     curl -L  \
                     --output "citizen.war" \
                     --user "$nexus_user_login:$nexus_user_pass" \
-                    "http://35.247.90.117:8081/service/rest/v1/search/assets/download?sort=version&direction=desc&repository=maven-snapshots&maven.groupId=com.softserveinc&maven.artifactId=geo-citizen&maven.baseVersion=1.0.5-SNAPSHOT&maven.extension=war"
+                    "https://nexus.vladkarok.ml/service/rest/v1/search/assets/download?sort=version&direction=desc&repository=maven-snapshots&maven.groupId=com.softserveinc&maven.artifactId=geo-citizen&maven.baseVersion=1.0.5-SNAPSHOT&maven.extension=war"
                     '''
                 }
                 
@@ -54,7 +54,7 @@ pipeline {
         stage('Deploy Image') {
             steps{
                 script {
-                    docker.withRegistry( 'http://'+registry, registryCredentials ) {
+                    docker.withRegistry( 'https://'+registry, registryCredentials ) {
                         dockerImage.push("${env.BUILD_NUMBER}")
                         dockerImage.push('latest')
                     }
