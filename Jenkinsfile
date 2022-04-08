@@ -92,7 +92,7 @@ pipeline {
                         jiraComment body: "Job \"${env.JOB_NAME}\" FAILED! ${env.BUILD_URL}", issueKey: 'CDA-21'
                         throw e
                     } finally {
-                        notifyBuild(currentBuild.result)
+                        sh 'echo nice'
                     }
                 }
             }
