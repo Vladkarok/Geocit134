@@ -27,7 +27,7 @@ pipeline {
 
         stage ('Clone Geo Citizen project') {
             steps {             
-                git branch: 'docker', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/Geocit134.git'
+                git branch: 'docker-postgres', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/Geocit134.git'
             }
         }      
         
