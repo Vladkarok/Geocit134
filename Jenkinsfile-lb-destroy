@@ -1,5 +1,5 @@
 pipeline {
-    agent { label '1' }
+    agent { label 'terraform' }
 
     environment {
         AWS_ACCESS_KEY_ID        = credentials('TERRAFORM_AWS_ACCESS_KEY_ID')
@@ -13,22 +13,25 @@ pipeline {
     stages {
         stage('Git checkout') {
             steps {
-                git branch: 'terraform-aws', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/Geocit134.git'
+                git branch: 'terraform-aws-lb', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/Geocit134.git'
             }
         }
-        stage("Terraform apply"){
+        stage("Terraform destroy"){
             steps {
                 script {
                     try {
                         notifyBuild("STARTED")
-                        sh 'terraform init'
-                        sh 'terraform validate'
-                        sh 'terraform apply -auto-approve -no-color'
-                    } catch (e) {
+                        withCredentials([usernamePassword(credentialsId: 'geo-nexus-user', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
+                        sh 'terraform init -no-color'
+                        sh 'terraform validate -no-color'
+                        sh 'terraform destroy -auto-approve -no-color -var "nexus_user_login=${nexus_user_login}" -var "nexus_user_pass=${nexus_user_pass}"'
+                        }
+                    } catch (err) {
+                        echo "Caught: ${err}"
                         // If there was an exception thrown, the build failed
                         currentBuild.result = "FAILED"
                         jiraComment body: "Job \"${env.JOB_NAME}\" FAILED! ${env.BUILD_URL}", issueKey: 'CDA-21'
-                        throw e
+                        throw err
                     } finally {
                         // Success or failure, always send notifications
                         notifyBuild(currentBuild.result)
