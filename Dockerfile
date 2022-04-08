@@ -1,7 +1,7 @@
-FROM tomcat:9
+FROM postgres:VERSION
 
-COPY ./citizen.war /usr/local/tomcat/webapps/
+ENV POSTGRES_USER=POSTGRESQL_USER
+ENV POSTGRES_PASSWORD=POSTGRESQL_PASSWORD
+ENV POSTGRES_DB=POSTGRESQL_DB
 
-EXPOSE 8080
-
-CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+EXPOSE 5432
