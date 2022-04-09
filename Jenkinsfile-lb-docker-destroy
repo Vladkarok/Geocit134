@@ -8,6 +8,7 @@ pipeline {
 
     tools {
         terraform 'Terraform'
+        git 'Default'
     }
 
     stages {
@@ -29,10 +30,10 @@ pipeline {
                 script {
                     try {
                         notifyBuild("STARTED")
-                        withCredentials([usernamePassword(credentialsId: 'geo-docker', usernameVariable: 'nexus_docker_username', passwordVariable: 'nexus_docker_password')]) {
+                        withCredentials([usernamePassword(credentialsId: 'geo-docker', usernameVariable: 'TF_VAR_nexus_docker_username', passwordVariable: 'TF_VAR_nexus_docker_password')]) {
                         sh 'terraform init -no-color'
                         sh 'terraform validate -no-color'
-                        sh 'terraform destroy -auto-approve -no-color -var "nexus_docker_username=${nexus_docker_username}" -var "nexus_docker_password=${nexus_docker_password}"'
+                        sh 'terraform destroy -auto-approve -no-color'
                         }
                     } catch (err) {
                         echo "Caught: ${err}"
