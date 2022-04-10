@@ -118,7 +118,7 @@ pipeline {
                         nexusVersion: 'nexus3', 
                         protocol: 'https', 
                         repository: nexusRepoName, 
-                        version: "${mavenPom.version}-8080"
+                        version: "8080-${mavenPom.version}"
                     } catch (e) {
                         currentBuild.result = "FAILED"
                         jiraComment body: "Job \"${env.JOB_NAME}\" FAILED! ${env.BUILD_URL}", issueKey: 'CDA-21'
