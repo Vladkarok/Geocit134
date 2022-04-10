@@ -1,0 +1,46 @@
+#!/bin/bash
+set -ex
+## Update the system
+sudo yum --disableplugin=fastestmirror update -y
+sudo yum -y install deltarpm
+sudo yum update -y
+sudo yum -y install htop
+## Install Docker
+
+sudo yum install -y yum-utils
+sudo yum-config-manager -y \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum -y install docker-ce docker-ce-cli containerd.io
+sudo systemctl start docker
+sudo usermod -a -G docker vladkarok
+
+## Install docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+## Create docker-compose.yml
+sudo sh -c 'cat > docker-compose.yml' << SOF
+version: "3.9"
+services:
+  geocit_db:
+    image: nexus.vladkarok.ml:5000/ss_postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+SOF
+## Create password file for docker login
+sh -c 'cat > password.txt' << SOF
+${docker_password}
+SOF
+
+## Perform docker login
+cat password.txt |sudo docker login --username ${docker_username} --password-stdin nexus.vladkarok.ml:5000
+
+## Build and run image using docker-compose
+
+sudo /usr/local/bin/docker-compose up -d
+## Remove password file for docker login
+rm password.txt

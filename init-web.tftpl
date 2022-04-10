@@ -1,0 +1,40 @@
+#!/bin/bash
+set -ex
+## Update the system
+sudo apt-get update
+
+## Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -a -G docker ubuntu
+
+## Install docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+## Create docker-compose.yml
+sudo sh -c 'cat > docker-compose.yml' << SOF
+version: "3.9"
+services:
+  geocit_web:
+    image: nexus.vladkarok.ml:5000/geocit:latest
+    restart: always
+    ports:
+      - "8080:8080"
+SOF
+## Create password file for docker login
+sh -c 'cat > password.txt' << SOF
+${docker_password}
+SOF
+
+## Perform docker login
+cat password.txt |sudo docker login --username ${docker_username} --password-stdin nexus.vladkarok.ml:5000
+
+## Build and run image using docker-compose
+
+sleep 180
+
+
+sudo /usr/local/bin/docker-compose up -d
+
+rm password.txt
