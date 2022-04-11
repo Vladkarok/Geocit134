@@ -1,30 +1,11 @@
-variable "gcp_project" {
-  default = "elaborate-art-343920"
+# Changable variables:
+variable "gcp_machine_type" {}
+variable "tag" {}
+variable "web_ports" {
+  type = list(string)
 }
-
-variable "gcp_region" {
-  default = "us-west1"
-}
-
-variable "gcp_zone" {
-  default = "us-west1-b"
-}
-
-variable "aws_region" {
-  type        = string
-  description = "AWS region"
-  default     = "eu-north-1" # Stockholm
-}
-
-variable "gcp_machine_type" {
-  #  default = "f1-micro"
-  default = "e2-standard-4"
-}
-
-variable "miname" {
-  default = "vladkarok"
-}
-
+variable "source_ranges" {}
+# Default variables:
 variable "domain" {
   type        = string
   description = "Domain name"
