@@ -9,6 +9,6 @@ terraform {
 inputs = {
   gcp_machine_type = "e2-standard-4"
   tag              = "prod"
-  web_ports            = ["8080"]
+  web_ports        = ["8080"]
   source_ranges    = "127.0.0.1/32"
 }
