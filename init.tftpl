@@ -75,7 +75,7 @@ SOF
 
 ## Supervisorctl
 sudo apt install -y supervisor
-sudo sh -c 'cat > /opt/statsd/localConfig.js' << SOF
+sudo sh -c 'cat > /etc/supervisor/conf.d/statsd.conf' << SOF
 [program:statd]
 
 command=/usr/local/bin/node /opt/statsd/stats.js /opt/statsd/localConfig.js
