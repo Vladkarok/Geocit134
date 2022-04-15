@@ -54,6 +54,42 @@ SOF
 sudo systemctl daemon-reload
 sudo systemctl enable --now tomcat
 
+
+## StatsD
+
+curl -L -s https://deb.nodesource.com/setup_14.x | sudo bash
+sudo apt install -y nodejs
+sudo ln -s /usr/bin/node /usr/local/bin/node
+sudo git clone https://github.com/etsy/statsd.git /opt/statsd
+sudo sh -c 'cat > /opt/statsd/localConfig.js' << SOF
+{
+   graphitePort: 2003
+ , graphiteHost: "graphite.vladkarok.ml"
+ , port: 8125
+ , backends: [ "./backends/graphite" ]
+ , graphite: {
+     legacyNamespace: false
+   }
+}
+SOF
+
+## Supervisorctl
+sudo apt install -y supervisor
+sudo sh -c 'cat > /opt/statsd/localConfig.js' << SOF
+[program:statd]
+
+command=/usr/local/bin/node /opt/statsd/stats.js /opt/statsd/localConfig.js
+
+process_name=%(program_name)s
+
+autostart=true
+
+autorestart=true
+
+stopsignal=QUIT
+SOF
+sudo systemctl restart supervisor
+sudo systemctl enable supervisor
 ## Downloading .war file
 
 curl -L \
