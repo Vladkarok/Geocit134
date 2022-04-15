@@ -24,7 +24,7 @@ pipeline {
                 script {
                     try {
                         notifyBuild("STARTED")
-                        withCredentials([usernamePassword(credentialsId: 'geo-nexus-user', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
+                        withCredentials([usernamePassword(credentialsId: 'geo-nexus-maven', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
                         sh 'terraform init -no-color'
                         sh 'terraform validate -no-color'
                         sh 'terraform apply -auto-approve -no-color -var "nexus_user_login=${nexus_user_login}" -var "nexus_user_pass=${nexus_user_pass}" -target="aws_security_group.allow_db" -target="aws_instance.Amazon_Linux_DB" -target="aws_route53_record.db_domain" -target="aws_vpc.main" -target="aws_internet_gateway.main" -target="aws_subnet.public_subnets" -target="aws_route_table.public_subnets" -target="aws_route_table_association.public_routes"'
