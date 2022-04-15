@@ -68,7 +68,7 @@ db_name: $db_name''', jobTemplate: 'Geo DB', jobType: 'run', throwExceptionWhenF
             steps {
                 script {
                     try {
-                        withCredentials([usernamePassword(credentialsId: 'geo-nexus-user', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
+                        withCredentials([usernamePassword(credentialsId: 'geo-nexus-maven', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
                             sh 'terraform apply -auto-approve -no-color -var "nexus_user_login=${nexus_user_login}" -var "nexus_user_pass=${nexus_user_pass}"'
                         }
                     } catch (err) {
