@@ -38,3 +38,78 @@ sleep 90
 sudo /usr/local/bin/docker-compose up -d
 
 rm password.txt
+## CollectD
+sudo apt-get install collectd -y
+
+## CollectD configuration
+sudo sh -c 'cat > /etc/collectd/collectd.conf' << SOF
+Hostname "MYHOSTNAMEFORCOLLECTD"
+FQDNLookup true
+LoadPlugin syslog
+<Plugin syslog>
+        LogLevel info
+</Plugin>
+LoadPlugin cpu
+LoadPlugin df
+LoadPlugin disk
+LoadPlugin load
+LoadPlugin memory
+LoadPlugin processes
+LoadPlugin uptime
+LoadPlugin users
+LoadPlugin write_graphite
+LoadPlugin network
+#Plugins
+<Plugin cpu>
+        ReportByCpu true
+        ReportByState true
+        ValuesPercentage false
+        ReportNumCpu false
+        ReportGuestState false
+        SubtractGuestState true
+</Plugin>
+<Plugin df>
+        FSType rootfs
+        FSType sysfs
+        FSType proc
+        FSType devtmpfs
+        FSType devpts
+        FSType tmpfs
+        FSType fusectl
+        FSType cgroup
+        IgnoreSelected true
+</Plugin>
+<Plugin load>
+        ReportRelative true
+</Plugin>
+<Plugin memory>
+        ValuesAbsolute true
+        ValuesPercentage false
+</Plugin>
+<Plugin write_graphite>
+       <Node "MYHOSTNAMEFORCOLLECTD">
+                Host "graphite.vladkarok.ml"
+                Port "2003"
+                Protocol "tcp"
+                LogSendErrors true
+                Prefix "collectd."
+                StoreRates true
+                EscapeCharacter "_"
+       </Node>
+</Plugin>
+<Include "/etc/collectd/collectd.conf.d">
+        Filter "*.conf"
+</Include>
+SOF
+
+## Fixing local hostname
+
+myhostname=`hostname`
+realhostname="webserver: $myhostname"
+sed -i "s/MYHOSTNAMEFORCOLLECTD/$realhostname/g" /etc/collectd/collectd.conf
+
+## Restart collectd
+sudo systemctl restart collectd
+
+## Enable collectd
+sudo systemctl enable collectd
