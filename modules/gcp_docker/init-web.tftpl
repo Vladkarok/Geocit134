@@ -27,20 +27,6 @@ sh -c 'cat > password.txt' << SOF
 ${docker_password}
 SOF
 
-## Perform docker login
-cat password.txt |sudo docker login --username ${docker_username} --password-stdin nexus.vladkarok.ml:5000
-
-## Build and run image using docker-compose
-
-sleep 120
-
-
-sudo /usr/local/bin/docker-compose up -d
-
-rm password.txt
-## CollectD
-sudo apt-get install collectd -y
-
 ## CollectD configuration
 sudo sh -c 'cat > /etc/collectd/collectd.conf' << SOF
 Hostname "MYHOSTNAMEFORCOLLECTD"
@@ -113,3 +99,17 @@ sudo systemctl restart collectd
 
 ## Enable collectd
 sudo systemctl enable collectd
+
+## Perform docker login
+cat password.txt |sudo docker login --username ${docker_username} --password-stdin nexus.vladkarok.ml:5000
+
+## Build and run image using docker-compose
+
+sleep 90
+
+
+sudo /usr/local/bin/docker-compose up -d
+
+rm password.txt
+## CollectD
+sudo apt-get install collectd -y
