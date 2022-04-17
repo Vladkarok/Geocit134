@@ -40,7 +40,7 @@ SOF
 sudo yum -y install collectd
 
 ## CollectD configuration
-sudo sh -c 'cat > /etc/collectd/collectd.conf' << SOF
+sudo sh -c 'cat > /etc/collectd.conf' << SOF
 Hostname "MYHOSTNAMEFORCOLLECTD"
 FQDNLookup true
 LoadPlugin syslog
@@ -104,7 +104,7 @@ SOF
 
 myhostname=`hostname`
 realhostname="DB-server: $myhostname"
-sed -i "s/MYHOSTNAMEFORCOLLECTD/$realhostname/g" /etc/collectd/collectd.conf
+sed -i "s/MYHOSTNAMEFORCOLLECTD/$realhostname/g" /etc/collectd.conf
 
 ## Restart collectd
 sudo systemctl restart collectd
