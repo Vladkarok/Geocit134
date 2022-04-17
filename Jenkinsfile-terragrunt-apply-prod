@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        withCredentials([usernamePassword(credentialsId: 'geo-nexus-maven', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
+                        withCredentials([usernamePassword(credentialsId: 'geo-nexus-maven', usernameVariable: 'TF_VAR_nexus_user_login', passwordVariable: 'TF_VAR_nexus_user_pass')]) {
                             notifyBuild("STARTED")
                             sh 'cd prod && /usr/bin/terragrunt apply -no-color -auto-approve'
                         }
