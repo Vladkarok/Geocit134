@@ -22,8 +22,7 @@ pipeline {
                     try {
                         withCredentials([usernamePassword(credentialsId: 'geo-nexus-maven', usernameVariable: 'nexus_user_login', passwordVariable: 'nexus_user_pass')]) {
                             notifyBuild("STARTED")
-                            sh 'cd dev'
-                            sh '/usr/bin/terragrunt destroy -no-color -auto-approve'
+                            sh 'cd dev && /usr/bin/terragrunt destroy -no-color -auto-approve'
                         }
                     } catch (e) {
                         // If there was an exception thrown, the build failed
