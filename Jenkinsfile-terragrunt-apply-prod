@@ -11,6 +11,12 @@ pipeline {
     }
 
     stages {
+        stage ('Clean WS') {
+            steps {
+                // clean current workspace directory
+                cleanWs()
+            }
+        }
         stage('Git checkout') {
             steps {
                 git branch: 'gcp-terragrunt', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/Geocit134.git'
@@ -20,7 +26,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        withCredentials([usernamePassword(credentialsId: 'geo-nexus-maven', usernameVariable: 'TF_VAR_nexus_user_login', passwordVariable: 'TF_VAR_nexus_user_pass')]) {
+                        withCredentials([usernamePassword(credentialsId: 'geo-docker', usernameVariable: 'TF_VAR_nexus_docker_username', passwordVariable: 'TF_VAR_nexus_docker_password')]) {
                             notifyBuild("STARTED")
                             sh 'cd prod && /usr/bin/terragrunt apply -no-color -auto-approve'
                         }

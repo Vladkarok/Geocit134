@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        withCredentials([usernamePassword(credentialsId: 'geo-nexus-maven', usernameVariable: 'TF_VAR_nexus_user_login', passwordVariable: 'TF_VAR_nexus_user_pass')]) {
+                        withCredentials([usernamePassword(credentialsId: 'geo-docker', usernameVariable: 'TF_VAR_nexus_docker_username', passwordVariable: 'TF_VAR_nexus_docker_password')]) {
                             notifyBuild("STARTED")
                             sh 'cd dev && /usr/bin/terragrunt apply -no-color -auto-approve'
                         }
