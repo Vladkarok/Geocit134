@@ -27,6 +27,8 @@ sh -c 'cat > password.txt' << SOF
 ${docker_password}
 SOF
 
+sudo apt install -y collectd
+
 ## CollectD configuration
 sudo sh -c 'cat > /etc/collectd/collectd.conf' << SOF
 Hostname "MYHOSTNAMEFORCOLLECTD"
