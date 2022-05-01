@@ -11,7 +11,7 @@ pipeline {
         email_login    = credentials('email_login')
         email_password = credentials('email_password')
         nexus_oss_url  = "nexus.vladkarok.ml"
-        env            = "test"
+        envairunmint   = "test"
     }
 
     triggers {
@@ -53,8 +53,8 @@ pipeline {
                     s_db_name=${db_name}
                     s_email_login=${email_login}
                     s_email_password=${email_password}
-                    s_serverip="${env}-geocitizen.vladkarok.ml"
-                    s_databaseip="${env}-dbgeo.vladkarok.ml"
+                    s_serverip="${envairunmint}-geocitizen.vladkarok.ml"
+                    s_databaseip="${envairunmint}-dbgeo.vladkarok.ml"
 
                     ##################Adjusting_application.properties###############################
                     sed -i -E \\
@@ -93,7 +93,7 @@ pipeline {
                         jiraComment body: "Job \"${env.JOB_NAME}\" FAILED! ${env.BUILD_URL}", issueKey: 'CDA-21'
                         throw e
                     } finally {
-                        sh 'echo nice'
+                        sh 'echo ${envairunmint}'
                     }
                 }
             }
@@ -119,7 +119,7 @@ pipeline {
                         nexusVersion: 'nexus3', 
                         protocol: 'https', 
                         repository: nexusRepoName, 
-                        version: "${env}-${mavenPom.version}"
+                        version: "${envairunmint}-${mavenPom.version}"
                     } catch (e) {
                         currentBuild.result = "FAILED"
                         jiraComment body: "Job \"${env.JOB_NAME}\" FAILED! ${env.BUILD_URL}", issueKey: 'CDA-21'
