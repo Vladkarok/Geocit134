@@ -1,6 +1,3 @@
-[![Quality Gate Status](https://sonar.vladkarok.ml/api/project_badges/measure?project=Vladkarok_Geocit134&metric=alert_status)](https://sonar.vladkarok.ml/dashboard?id=Vladkarok_Geocit134)
-
-
 <<<<<<< HEAD
 # ch-058, geocitizen
 
