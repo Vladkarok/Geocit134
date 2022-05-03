@@ -62,6 +62,7 @@
 	    <apache.commons.collections>4.1</apache.commons.collections>
         <apache.commons.io>2.6</apache.commons.io>
         <swagger.version>2.7.0</swagger.version>
+	<sonar.projectKey>Vladkarok_Geocit134</sonar.projectKey>
     </properties>
 
     <dependencies>
