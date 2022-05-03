@@ -300,12 +300,15 @@
 		    <version>${mapstruct.version}</version>
 		    <optional>true</optional>
 	    </dependency>
+	    
 	    <!--Javax validation-->
+	    <!--
 	    <dependency>
 		    <groupId>javax.validation</groupId>
 		    <artifactId>validation-api</artifactId>
 		    <version>${javax.validation.version}</version>
 	    </dependency>
+	    -->
 	    <!--Guava-->
 	    <dependency>
 		    <groupId>com.google.guava</groupId>
