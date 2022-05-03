@@ -53,7 +53,8 @@ public class AuthRestControllerTest {
 		MockitoAnnotations.initMocks(this);
 		mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 	}
-
+	
+	@Ignore
 	@Test
 	public void testGetCurrentSession() throws Exception {
 
