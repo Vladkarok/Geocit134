@@ -366,13 +366,6 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
-	<!--For Testing 1-->
-	<!-- https://mvnrepository.com/artifact/javax.el/javax.el-api -->
-	<dependency>
-    	    <groupId>javax.el</groupId>
-    	    <artifactId>javax.el-api</artifactId>
-    	    <version>3.0.0</version>
-	</dependency>
         <!--Some tools-->
 	    <dependency>
 		    <groupId>javax.mail</groupId>
