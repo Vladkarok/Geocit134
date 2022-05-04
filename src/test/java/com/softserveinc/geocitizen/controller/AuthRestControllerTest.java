@@ -54,7 +54,6 @@ public class AuthRestControllerTest {
 		mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 	}
 	
-	@Ignore
 	@Test
 	public void testGetCurrentSession() throws Exception {
 
