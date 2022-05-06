@@ -8,6 +8,6 @@ ENV DATABASE_URL=db \
      DB_NAME=somename \
      EMAIL_LOGIN=examplecom \
      EMAIL_PASSWORD=emailpassword \
-     FRONTEND_URL=someurl \
- 
+     FRONTEND_URL=someurl
+
 EXPOSE 8080
