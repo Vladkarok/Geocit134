@@ -18,7 +18,7 @@ pipeline {
             steps {
                 withMaven(maven:'3.6.3') {
                     sh '''#!/bin/bash
-                        find src/test/java/com/softserveinc/geocitizen -type f -exec sed -i "s/^\\@Ignore/\\/\\/@Ignore/g" {} + 
+                        find src/test/java/com/softserveinc/geocitizen -type f -exec sed -i "s/@Ignore//g" {} +  
                         sed -i -E \\
                             "s/(db.username=postgres)/db.username=${sonar_username}/g;
                             s/(db.password=postgres)/db.password=${sonar_password}/g;
