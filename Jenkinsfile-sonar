@@ -1,0 +1,57 @@
+pipeline {
+    agent {
+        label 'maven'
+    }
+    environment {
+        sonar_username = credentials('sonar_db_username')
+        sonar_password = credentials('sonar_db_password')
+        sonar_database = credentials('sonar_db_database')
+        sonar_db_ip    = '10.138.0.17'
+    }
+    stages {
+        stage('SCM') {
+            steps {
+                git branch: 'main', credentialsId: 'github-ssh', url: 'git@github.com:Vladkarok/Geocit134.git'
+            }
+        }
+        stage('build') {
+            steps {
+                withMaven(maven:'3.6.3') {
+                    sh '''#!/bin/bash
+                        find src/test/java/com/softserveinc/geocitizen -type f -exec sed -i "s/^\\@Ignore/\\/\\/@Ignore/g" {} + 
+                        sed -i -E \\
+                            "s/(db.username=postgres)/db.username=${sonar_username}/g;
+                            s/(db.password=postgres)/db.password=${sonar_password}/g;
+                            s/(postgresql:\\/\\/localhost)/postgresql:\\/\\/${sonar_db_ip}/g
+                            s/(ss_demo_1)$/${sonar_database}/g;" src/main/resources/application.properties
+                        mvn clean verify
+                        '''
+                }
+            }
+        }
+        stage('SonarQube analysis') {
+            steps {
+                withSonarQubeEnv('MySonarQube') {
+                    // Optionally use a Maven environment you've configured already
+                    withMaven(maven:'3.6.3') {
+                        sh 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+                    // true = set pipeline to UNSTABLE, false = don't
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+    }  
+}
