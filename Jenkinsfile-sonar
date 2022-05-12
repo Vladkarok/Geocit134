@@ -40,16 +40,18 @@ pipeline {
         }
         stage("Quality Gate") {
             steps {
-                try {
-                    timeout(time: 1, unit: 'HOURS') {
-                        waitForQualityGate abortPipeline: true
+                script {
+                    try {
+                        timeout(time: 1, unit: 'HOURS') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    } catch (err) {
+                        echo "Caught: ${err}"
+                        currentBuild.result = "FAILED"
+                        throw err
+                    } finally {
+                        notifyBuild(currentBuild.result)
                     }
-                } catch (err) {
-                    echo "Caught: ${err}"
-                    currentBuild.result = "FAILED"
-                    throw err
-                } finally {
-                    notifyBuild(currentBuild.result)
                 }
             }
         }
